@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Nkuah Daniel">
+
+<title>P3</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="p3_files/libs/clipboard/clipboard.min.js"></script>
+<script src="p3_files/libs/quarto-html/quarto.js"></script>
+<script src="p3_files/libs/quarto-html/popper.min.js"></script>
+<script src="p3_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="p3_files/libs/quarto-html/anchor.min.js"></script>
+<link href="p3_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="p3_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="p3_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="p3_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="p3_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">P3</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Nkuah Daniel </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<p><strong>Consider the <code>airbnb</code> dataset from the <code>bayesrules</code> package. This data set includes the prices and features for 1561 AirBnB listings in Chicago, collected as part of a class project at St.&nbsp;Olaf College in 2016. The variables we are interested in:</strong></p>
+<ul>
+<li><strong>price</strong>: the nightly price of the listing (in USD)</li>
+<li><strong>rating</strong>: the listing’s average rating, on a scale from 1 to 5</li>
+<li><strong>reviews</strong>: the number of user reviews the listing has</li>
+<li><strong>room_type</strong>: the type of listing</li>
+<li><strong>bedrooms</strong>: the number of bedrooms the listing has</li>
+<li><strong>minimum_stay</strong>: the minimum number of nights to stay in the listing</li>
+</ul>
+<p><strong>Here is the data (you’re welcome):</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(bayesrules)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># call in data</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(airbnb)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># management</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>airbnb <span class="ot">&lt;-</span> airbnb <span class="sc">%&gt;%</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(room_type <span class="sc">!=</span> <span class="st">"Shared room"</span>) <span class="sc">%&gt;%</span> <span class="co"># only 50 obs</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(room_type, price, rating, reviews, bedrooms, minimum_stay) <span class="sc">%&gt;%</span> </span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">na.omit</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<!-- note that I did not insert code chunks below... insert them where you see fit :) -->
+<p><strong>1. Consider <em>room_type</em> as the outcome of interest.</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>airbnb <span class="sc">%&gt;%</span> <span class="fu">count</span>(room_type)<span class="co"># binary outcome</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        room_type   n
+1 Entire home/apt 722
+2    Private room 654</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>airbnb <span class="ot">&lt;-</span> airbnb <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">room_type =</span> <span class="fu">case_when</span>(room_type <span class="sc">==</span> <span class="st">"Entire home/apt"</span> <span class="sc">~</span> <span class="dv">0</span>,</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                                                  room_type <span class="sc">==</span> <span class="st">"Private room"</span> <span class="sc">~</span> <span class="dv">1</span>))</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>airbnb <span class="sc">%&gt;%</span> <span class="fu">count</span>(room_type)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  room_type   n
+1         0 722
+2         1 654</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>airbnb <span class="sc">%&gt;%</span> <span class="fu">count</span>(rating)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  rating   n
+1    2.5   1
+2    3.0   3
+3    3.5  17
+4    4.0  65
+5    4.5 446
+6    5.0 844</code></pre>
+</div>
+</div>
+<p><strong>a. Model <em>room_type</em> as a function of <em>price</em>, <em>rating</em>, <em>reviews</em>, <em>bedrooms</em>, and <em>minimum_stay</em>. You do not need to typeset the resulting model, but please include the <code>summary()</code> output.</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>mp1a <span class="ot">&lt;-</span> <span class="fu">glm</span>(room_type <span class="sc">~</span> price <span class="sc">+</span> rating <span class="sc">+</span> reviews <span class="sc">+</span> bedrooms <span class="sc">+</span> minimum_stay, <span class="at">data =</span> airbnb, <span class="at">family =</span> <span class="st">"binomial"</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mp1a)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = room_type ~ price + rating + reviews + bedrooms + 
+    minimum_stay, family = "binomial", data = airbnb)
+
+Coefficients:
+              Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)   1.671143   1.154719   1.447    0.148    
+price        -0.052474   0.003334 -15.738  &lt; 2e-16 ***
+rating        1.003057   0.242516   4.136 3.53e-05 ***
+reviews       0.002352   0.002463   0.955    0.340    
+bedrooms     -1.168414   0.177452  -6.584 4.57e-11 ***
+minimum_stay -0.349057   0.072875  -4.790 1.67e-06 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 1904.18  on 1375  degrees of freedom
+Residual deviance:  951.68  on 1370  degrees of freedom
+AIC: 963.68
+
+Number of Fisher Scoring iterations: 7</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">#handling the Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Thus models perfectly predict, because there are no variability in some varaiables or categorical levels.</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>airbnb <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(room_type) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="fu">min</span>(bedrooms), <span class="fu">max</span>(bedrooms))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 3
+  room_type `min(bedrooms)` `max(bedrooms)`
+      &lt;dbl&gt;           &lt;int&gt;           &lt;int&gt;
+1         0               0               9
+2         1               1               1</code></pre>
+</div>
+</div>
+<p>I know it’s probably too little to late, but this error is important to address. it’s basically telling you that it can perfectly or almost perfectly predict something. This is bad. The first thing to look for is perfect coliniarity (for continuous responses), or if there’s no variance in a predictors for one of the response levels in a categorical model. sure enough, if yo look at the “private room” type in part 1, you’ll see that it always has 1 bedroom. thus the model can fairly easily guess the response (plus having 0 variability in a class leads to all sorts of mathematical headaches). I just dropped that variable from the model. After you do that, and remove the extremes in the other predictors, the warning will go away.</p>
+<p><strong>b. Model <em>room_type</em> as a function of <em>price</em>, <em>rating</em>, and <em>reviews</em>. You do not need to typeset the resulting model, but please include the <code>summary()</code> output.</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>mp1b <span class="ot">&lt;-</span> <span class="fu">glm</span>(room_type <span class="sc">~</span> price <span class="sc">+</span> rating <span class="sc">+</span> reviews, <span class="at">data =</span> airbnb, <span class="at">family =</span> <span class="st">"binomial"</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mp1b)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = room_type ~ price + rating + reviews, family = "binomial", 
+    data = airbnb)
+
+Coefficients:
+             Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept) -0.388747   1.062372  -0.366    0.714    
+price       -0.057484   0.003225 -17.824  &lt; 2e-16 ***
+rating       1.115751   0.227051   4.914 8.92e-07 ***
+reviews      0.001853   0.002337   0.793    0.428    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 1904.2  on 1375  degrees of freedom
+Residual deviance: 1038.3  on 1372  degrees of freedom
+AIC: 1046.3
+
+Number of Fisher Scoring iterations: 7</code></pre>
+</div>
+</div>
+<p><strong>c.&nbsp;Perform 10-fold CV to determine if model a or model b fits better.</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(boot)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">243</span>)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>mp1a <span class="ot">&lt;-</span> <span class="fu">glm</span>(room_type <span class="sc">~</span> price <span class="sc">+</span> rating <span class="sc">+</span> reviews <span class="sc">+</span> bedrooms <span class="sc">+</span> minimum_stay, <span class="at">data =</span> airbnb, <span class="at">family =</span> <span class="st">"binomial"</span>)</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="fu">cv.glm</span>(airbnb, mp1a, <span class="at">K =</span> <span class="dv">10</span>)<span class="sc">$</span>delta</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.1055053 0.1054017</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">345</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>mp1b <span class="ot">&lt;-</span> <span class="fu">glm</span>(room_type <span class="sc">~</span> price <span class="sc">+</span> rating <span class="sc">+</span> reviews, <span class="at">data =</span> airbnb, <span class="at">family =</span> <span class="st">"binomial"</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cv.glm</span>(airbnb, mp1b, <span class="at">K =</span> <span class="dv">10</span>)<span class="sc">$</span>delta</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.1158300 0.1157799</code></pre>
+</div>
+</div>
+<p>The model with bedrooms and minimum_stay (mp1a) has a lower CV (k) test, thus, fits better</p>
+<p><strong>d.&nbsp;Justify your choice of modeling approach (i.e., the underlying distribution). If there are assumptions that should be checked, please check them.</strong></p>
+<p>I used binary logistic regression because the the outcome variable(room type) is binary.</p>
+<p><strong>2. Consider <em>price</em> as the outcome of interest.</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(airbnb<span class="sc">$</span>price)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="p3_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(airbnb<span class="sc">$</span>price)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+   12.0    58.0    87.0   107.9   129.0  1000.0 </code></pre>
+</div>
+</div>
+<p><strong>a. Model <em>price</em> as a function of <em>room_type</em>, <em>rating</em>, <em>reviews</em>, <em>bedrooms</em>, and <em>minimum_stay</em>. You do not need to typeset the resulting model, but please include the <code>summary()</code> output.</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>mp2a <span class="ot">&lt;-</span> <span class="fu">glm</span>(price <span class="sc">~</span> <span class="fu">as.factor</span>(room_type) <span class="sc">+</span> rating <span class="sc">+</span> reviews <span class="sc">+</span> bedrooms <span class="sc">+</span> minimum_stay, <span class="at">data =</span> airbnb, <span class="at">family =</span> <span class="fu">Gamma</span>(<span class="at">link =</span> <span class="st">"log"</span>))</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mp2a)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = price ~ as.factor(room_type) + rating + reviews + 
+    bedrooms + minimum_stay, family = Gamma(link = "log"), data = airbnb)
+
+Coefficients:
+                        Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)            3.5384601  0.1933858  18.297  &lt; 2e-16 ***
+as.factor(room_type)1 -0.6700393  0.0305991 -21.897  &lt; 2e-16 ***
+rating                 0.2238751  0.0396607   5.645 2.01e-08 ***
+reviews               -0.0007084  0.0003918  -1.808   0.0708 .  
+bedrooms               0.2427530  0.0194782  12.463  &lt; 2e-16 ***
+minimum_stay          -0.0146380  0.0110025  -1.330   0.1836    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for Gamma family taken to be 0.2461037)
+
+    Null deviance: 538.47  on 1375  degrees of freedom
+Residual deviance: 240.85  on 1370  degrees of freedom
+AIC: 13906
+
+Number of Fisher Scoring iterations: 5</code></pre>
+</div>
+</div>
+<p><strong>b. Model <em>price</em> as a function of <em>rating</em>, <em>reviews</em>, and <em>room_type</em>. You do not need to typeset the resulting model, but please include the <code>summary()</code> output.</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>mp2b <span class="ot">&lt;-</span> <span class="fu">glm</span>(price <span class="sc">~</span> <span class="fu">as.factor</span>(room_type) <span class="sc">+</span> rating <span class="sc">+</span> reviews, <span class="at">data =</span> airbnb, <span class="at">family =</span> <span class="fu">Gamma</span>(<span class="at">link =</span> <span class="st">"log"</span>))</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mp2b)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = price ~ as.factor(room_type) + rating + reviews, 
+    family = Gamma(link = "log"), data = airbnb)
+
+Coefficients:
+                        Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)            3.8838135  0.2095879  18.531  &lt; 2e-16 ***
+as.factor(room_type)1 -0.8638367  0.0298256 -28.963  &lt; 2e-16 ***
+rating                 0.2384770  0.0440211   5.417 7.14e-08 ***
+reviews               -0.0007165  0.0004348  -1.648   0.0996 .  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for Gamma family taken to be 0.3033095)
+
+    Null deviance: 538.47  on 1375  degrees of freedom
+Residual deviance: 288.32  on 1372  degrees of freedom
+AIC: 14157
+
+Number of Fisher Scoring iterations: 5</code></pre>
+</div>
+</div>
+<p><strong>c.&nbsp;Perform leave-one-out CV to determine if model a or model b fits better.</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">453</span>)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>mp2a <span class="ot">&lt;-</span> <span class="fu">glm</span>(price <span class="sc">~</span> <span class="fu">as.factor</span>(room_type) <span class="sc">+</span> rating <span class="sc">+</span> reviews <span class="sc">+</span> bedrooms <span class="sc">+</span> minimum_stay, <span class="at">data =</span> airbnb, <span class="at">family =</span> <span class="fu">Gamma</span>(<span class="at">link =</span> <span class="st">"log"</span>))</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cv.glm</span>(airbnb, mp2a)<span class="sc">$</span>delta</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 4354.281 4354.234</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">567</span>)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>mp2b <span class="ot">&lt;-</span> <span class="fu">glm</span>(price <span class="sc">~</span> <span class="fu">as.factor</span>(room_type) <span class="sc">+</span> rating <span class="sc">+</span> reviews, <span class="at">data =</span> airbnb, <span class="at">family =</span> <span class="fu">Gamma</span>(<span class="at">link =</span> <span class="st">"log"</span>))</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cv.glm</span>(airbnb, mp2b)<span class="sc">$</span>delta</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 5532.097 5532.089</code></pre>
+</div>
+</div>
+<p>The model with bedrooms and minimum _stay variable (mp2a) has a lower CV(n) test, thus, fits better</p>
+<p><strong>d.&nbsp;Justify your choice of modeling approach (i.e., the underlying distribution). If there are assumptions that should be checked, please check them.</strong></p>
+<p>I used gamma regression for the modeling because the outcome variable (price) is continuous, positive and right skewed.</p>
+<p><strong>3. Consider <em>minimum_stay</em> as the outcome of interest.</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>airbnb <span class="sc">%&gt;%</span> <span class="fu">count</span>(minimum_stay)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   minimum_stay   n
+1             1 707
+2             2 457
+3             3 148
+4             4  23
+5             5  19
+6             6   3
+7             7  11
+8             9   1
+9            10   4
+10           14   2
+11           15   1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>airbnb <span class="sc">%&gt;%</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> minimum_stay)) <span class="sc">+</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">45</span>) <span class="sc">+</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="p3_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>airbnb <span class="sc">%&gt;%</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y=</span> minimum_stay, <span class="at">x =</span> price)) <span class="sc">+</span> </span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="p3_files/figure-html/unnamed-chunk-10-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>airbnb_new <span class="ot">&lt;-</span> airbnb <span class="sc">%&gt;%</span> <span class="fu">filter</span>(minimum_stay <span class="sc">&gt;</span><span class="dv">4</span>)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>airbnb_new <span class="sc">%&gt;%</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> minimum_stay)) <span class="sc">+</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>( <span class="at">bins =</span> <span class="dv">45</span>) <span class="sc">+</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="p3_files/figure-html/unnamed-chunk-10-3.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(airbnb_new<span class="sc">$</span>minimum_stay)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  5.000   5.000   6.000   6.878   7.000  15.000 </code></pre>
+</div>
+</div>
+<p>There were extreme values in the outcome variable (minimum_stay) so i filtered it down to a minimum stay greater than 4 to exclude those extreme values.</p>
+<p><strong>a. Model <em>minimum_stay</em> as a function of <em>room_type</em>, <em>rating</em>, <em>reviews</em>, <em>bedrooms</em>, and <em>price</em>. You do not need to typeset the resulting model, but please include the <code>summary()</code> output.</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>mp3a <span class="ot">&lt;-</span> <span class="fu">glm</span>(minimum_stay <span class="sc">~</span> <span class="fu">as.factor</span>(room_type) <span class="sc">+</span> rating <span class="sc">+</span> reviews <span class="sc">+</span> bedrooms <span class="sc">+</span> price, <span class="at">data =</span> airbnb_new, <span class="at">family =</span> <span class="st">"poisson"</span>)</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mp3a)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = minimum_stay ~ as.factor(room_type) + rating + 
+    reviews + bedrooms + price, family = "poisson", data = airbnb_new)
+
+Coefficients:
+                        Estimate Std. Error z value Pr(&gt;|z|)   
+(Intercept)            2.1674053  0.8080901   2.682  0.00732 **
+as.factor(room_type)1 -0.0441333  0.1813095  -0.243  0.80768   
+rating                 0.0224274  0.1697141   0.132  0.89487   
+reviews               -0.0021107  0.0082031  -0.257  0.79694   
+bedrooms              -0.1379443  0.1037343  -1.330  0.18359   
+price                 -0.0009402  0.0008768  -1.072  0.28357   
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 35.171  on 40  degrees of freedom
+Residual deviance: 31.048  on 35  degrees of freedom
+AIC: 196.25
+
+Number of Fisher Scoring iterations: 4</code></pre>
+</div>
+</div>
+<p><strong>b. Model <em>minimum_stay</em> as a function of <em>price</em> and <em>room_type</em>. You do not need to typeset the resulting model, but please include the <code>summary()</code> output.</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>mp3b <span class="ot">&lt;-</span> <span class="fu">glm</span>(minimum_stay <span class="sc">~</span> <span class="fu">as.factor</span>(room_type) <span class="sc">+</span> price, <span class="at">data =</span> airbnb_new, <span class="at">family =</span> <span class="st">"poisson"</span>)</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mp3b)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = minimum_stay ~ as.factor(room_type) + price, family = "poisson", 
+    data = airbnb_new)
+
+Coefficients:
+                        Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)            2.0415287  0.1471525  13.874   &lt;2e-16 ***
+as.factor(room_type)1  0.0351859  0.1673988   0.210    0.834    
+price                 -0.0009649  0.0008787  -1.098    0.272    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 35.171  on 40  degrees of freedom
+Residual deviance: 32.879  on 38  degrees of freedom
+AIC: 192.08
+
+Number of Fisher Scoring iterations: 4</code></pre>
+</div>
+</div>
+<p><strong>c.&nbsp;Perform 5-fold CV to determine if model a or model b fits better.</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">356</span>)</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>mp3a <span class="ot">&lt;-</span> <span class="fu">glm</span>(minimum_stay <span class="sc">~</span> <span class="fu">as.factor</span>(room_type) <span class="sc">+</span> rating <span class="sc">+</span> reviews <span class="sc">+</span> bedrooms <span class="sc">+</span> price, <span class="at">data =</span> airbnb_new, <span class="at">family =</span> <span class="st">"poisson"</span>)</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cv.glm</span>(airbnb_new, mp3a, <span class="at">K =</span> <span class="dv">5</span>)<span class="sc">$</span>delta</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 8.237938 7.977637</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">653</span>)</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>mp3b <span class="ot">&lt;-</span> <span class="fu">glm</span>(minimum_stay <span class="sc">~</span> <span class="fu">as.factor</span>(room_type) <span class="sc">+</span> price, <span class="at">data =</span> airbnb_new, <span class="at">family =</span> <span class="st">"poisson"</span>)</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cv.glm</span>(airbnb_new, mp3b, <span class="at">K =</span> <span class="dv">5</span>)<span class="sc">$</span>delta</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 8.501914 8.273647</code></pre>
+</div>
+</div>
+<p>The model with the predictors; rating, bedrooms and reviews(mp3a) has a lower CV(K) test, thus, fits better</p>
+<p><strong>d.&nbsp;Justify your choice of modeling approach (i.e., the underlying distribution). If there are assumptions that should be checked, please check them.</strong></p>
+<p>I used poisson regression for the modeling because the outcome variable (minimum_stay) is a count variable. It’s a count of the number of nights people stay in listings.</p>
+<p><strong>Checking the assumption of equal variance and mean</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>airbnb_new <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="fu">mean</span>(minimum_stay), <span class="fu">var</span>(minimum_stay))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  mean(minimum_stay) var(minimum_stay)
+1           6.878049          7.009756</code></pre>
+</div>
+</div>
+<p>The mean and variance of the outcome variable (minimum _stay) is approximately equal, hence it’s appropriate to use poisson regression for the modeling.</p>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

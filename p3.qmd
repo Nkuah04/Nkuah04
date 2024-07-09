@@ -1,0 +1,197 @@
+---
+title: "P3"
+author: "Nkuah Daniel"
+format: html
+echo: true
+warning: false
+message: false
+error: true
+editor: source
+---
+
+
+
+**Consider the `airbnb` dataset from the `bayesrules` package. This data set includes the prices and features for 1561 AirBnB listings in Chicago, collected as part of a class project at St. Olaf College in 2016. The variables we are interested in:**
+
+- **price**: the nightly price of the listing (in USD)
+- **rating**: the listing's average rating, on a scale from 1 to 5
+- **reviews**: the number of user reviews the listing has
+- **room_type**: the type of listing 
+- **bedrooms**: the number of bedrooms the listing has
+- **minimum_stay**: the minimum number of nights to stay in the listing
+
+**Here is the data (you're welcome):**
+
+```{r}
+library(tidyverse)
+library(bayesrules)
+
+# call in data
+data(airbnb)
+
+
+# management
+airbnb <- airbnb %>%
+  filter(room_type != "Shared room") %>% # only 50 obs
+  select(room_type, price, rating, reviews, bedrooms, minimum_stay) %>% 
+  na.omit()
+```
+
+<!-- note that I did not insert code chunks below... insert them where you see fit :) -->
+
+**1. Consider *room_type* as the outcome of interest.**
+```{r}
+airbnb %>% count(room_type)# binary outcome
+
+airbnb <- airbnb %>% mutate(room_type = case_when(room_type == "Entire home/apt" ~ 0,
+                                                  room_type == "Private room" ~ 1))
+airbnb %>% count(room_type)
+airbnb %>% count(rating)
+ 
+
+```
+
+**a. Model *room_type* as a function of *price*, *rating*, *reviews*, *bedrooms*, and *minimum_stay*. You do not need to typeset the resulting model, but please include the `summary()` output.**
+
+```{r}
+mp1a <- glm(room_type ~ price + rating + reviews + bedrooms + minimum_stay, data = airbnb, family = "binomial")
+summary(mp1a)
+
+#handling the Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+# Thus models perfectly predict, because there are no variability in some varaiables or categorical levels.
+
+airbnb %>% group_by(room_type) %>% summarize(min(bedrooms), max(bedrooms))
+
+```
+I know it's probably too little to late, but this error is important to address. it's basically telling you that it can perfectly or almost perfectly predict something. This is bad. The first thing to look for is perfect coliniarity (for continuous responses), or if there's no variance in a predictors for one of the response levels in a categorical model. sure enough, if yo look at the "private room" type in part 1, you'll see that it always has 1 bedroom. thus the model can fairly easily guess the response (plus having 0 variability in a class leads to all sorts of mathematical headaches). I just dropped that variable from the model. After you do that, and remove the extremes in the other predictors, the warning will go away.
+
+
+**b. Model *room_type* as a function of *price*, *rating*, and *reviews*. You do not need to typeset the resulting model, but please include the `summary()` output.**
+```{r}
+mp1b <- glm(room_type ~ price + rating + reviews, data = airbnb, family = "binomial")
+
+summary(mp1b)
+```
+
+
+**c. Perform 10-fold CV to determine if model a or model b fits better.**
+
+```{r}
+library(boot)
+
+set.seed(243)
+mp1a <- glm(room_type ~ price + rating + reviews + bedrooms + minimum_stay, data = airbnb, family = "binomial")
+cv.glm(airbnb, mp1a, K = 10)$delta
+
+set.seed(345)
+mp1b <- glm(room_type ~ price + rating + reviews, data = airbnb, family = "binomial")
+cv.glm(airbnb, mp1b, K = 10)$delta
+```
+The model with bedrooms and minimum_stay (mp1a) has a lower CV (k) test, thus, fits better
+
+**d. Justify your choice of modeling approach (i.e., the underlying distribution). If there are assumptions that should be checked, please check them.**
+
+I used binary logistic regression because the the outcome variable(room type) is binary.
+
+**2. Consider *price* as the outcome of interest.**
+```{r}
+hist(airbnb$price)
+summary(airbnb$price)
+```
+
+
+**a. Model *price* as a function of *room_type*, *rating*, *reviews*, *bedrooms*, and *minimum_stay*. You do not need to typeset the resulting model, but please include the `summary()` output.**
+```{r}
+mp2a <- glm(price ~ as.factor(room_type) + rating + reviews + bedrooms + minimum_stay, data = airbnb, family = Gamma(link = "log"))
+
+summary(mp2a)
+```
+
+
+**b. Model *price* as a function of *rating*, *reviews*, and *room_type*. You do not need to typeset the resulting model, but please include the `summary()` output.**
+```{r}
+mp2b <- glm(price ~ as.factor(room_type) + rating + reviews, data = airbnb, family = Gamma(link = "log"))
+
+summary(mp2b)
+```
+
+**c. Perform leave-one-out CV to determine if model a or model b fits better.**
+```{r}
+set.seed(453)
+mp2a <- glm(price ~ as.factor(room_type) + rating + reviews + bedrooms + minimum_stay, data = airbnb, family = Gamma(link = "log"))
+cv.glm(airbnb, mp2a)$delta
+
+set.seed(567)
+mp2b <- glm(price ~ as.factor(room_type) + rating + reviews, data = airbnb, family = Gamma(link = "log"))
+cv.glm(airbnb, mp2b)$delta
+
+
+```
+The model with bedrooms and minimum _stay variable (mp2a) has a lower CV(n) test, thus, fits better
+
+
+**d. Justify your choice of modeling approach (i.e., the underlying distribution). If there are assumptions that should be checked, please check them.**
+
+ I used gamma regression for the modeling because the outcome variable (price) is continuous, positive and right skewed.
+
+**3. Consider *minimum_stay* as the outcome of interest.**
+```{r}
+airbnb %>% count(minimum_stay)
+
+airbnb %>%
+  ggplot(aes(x = minimum_stay)) +
+  geom_histogram(bins = 45) +
+  theme_bw()
+
+airbnb %>%
+ggplot(aes(y= minimum_stay, x = price)) + 
+  geom_boxplot() +
+  theme_bw()
+
+airbnb_new <- airbnb %>% filter(minimum_stay >4)
+
+airbnb_new %>%
+  ggplot(aes(x = minimum_stay)) +
+  geom_histogram( bins = 45) +
+  theme_bw()
+
+summary(airbnb_new$minimum_stay)
+```
+There were extreme values in the outcome variable (minimum_stay) so i filtered it down to a minimum stay greater than 4 to exclude those extreme values.
+
+**a. Model *minimum_stay* as a function of *room_type*, *rating*, *reviews*, *bedrooms*, and *price*. You do not need to typeset the resulting model, but please include the `summary()` output.**
+```{r}
+mp3a <- glm(minimum_stay ~ as.factor(room_type) + rating + reviews + bedrooms + price, data = airbnb_new, family = "poisson")
+summary(mp3a)
+```
+
+**b. Model *minimum_stay* as a function of *price* and *room_type*. You do not need to typeset the resulting model, but please include the `summary()` output.**
+```{r}
+mp3b <- glm(minimum_stay ~ as.factor(room_type) + price, data = airbnb_new, family = "poisson")
+summary(mp3b)
+```
+
+**c. Perform 5-fold CV to determine if model a or model b fits better.**
+```{r}
+set.seed(356)
+mp3a <- glm(minimum_stay ~ as.factor(room_type) + rating + reviews + bedrooms + price, data = airbnb_new, family = "poisson")
+cv.glm(airbnb_new, mp3a, K = 5)$delta
+
+set.seed(653)
+mp3b <- glm(minimum_stay ~ as.factor(room_type) + price, data = airbnb_new, family = "poisson")
+cv.glm(airbnb_new, mp3b, K = 5)$delta
+```
+The model with the predictors; rating, bedrooms and reviews(mp3a) has a lower CV(K) test, thus, fits better
+
+**d. Justify your choice of modeling approach (i.e., the underlying distribution). If there are assumptions that should be checked, please check them.**
+
+I used poisson regression for the modeling  because the outcome variable (minimum_stay) is a count variable. It's a count of the number of nights people stay in listings.
+
+**Checking the assumption of equal variance and mean**
+```{r}
+airbnb_new %>% summarize(mean(minimum_stay), var(minimum_stay))
+```
+The mean and variance of the outcome variable (minimum _stay) is approximately equal, hence it's appropriate to use poisson regression for the modeling.
+
+
+
