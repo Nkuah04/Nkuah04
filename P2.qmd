@@ -1,0 +1,432 @@
+---
+title: "STA6235: Project 2"
+author: "Nkuah Daniel"
+format: 
+  html:
+    self-contained: true
+execute:
+  echo: true
+  warning: false
+  message: false
+  error: true
+editor: source
+---
+
+**Recall the [Jackson Heart Study](https://www.jacksonheartstudy.org/) data from lecture. You can find data from clinic visit 1 on Canvas. For any question requiring an $\alpha$, assume $\alpha=0.05$.**
+
+### Outcome 1: Hypertension Status part 1
+
+**1a. Import the data from visit 1. Keep only subjid, HbA1c, age, totchol, HTN, HSgrad, and BMI3cat. Retain only the complete cases.**
+
+```{r}
+library(tidyverse)
+library(haven)
+analysis1 <- read_sas("analysis1.sas7bdat")
+
+P2data <- analysis1 %>%
+  select(subjid, HbA1c, age, totchol, HTN, HSgrad, BMI3cat) %>%
+  na.omit()
+```
+
+**1b. Model hypertension status at V1 (*HTN*) as a function of age (*age*; years), total cholesterol (*totchol*; mg/dL), hemoglobin A1c (*HbA1c*), education (*HSgrad*; 1=yes, 0=no), and health status based on body mass index (*BMI3cat*; 0=poor health, 1=intermediate health, 2=ideal health), and all possible two-way interactions involving age. Remember to typeset the model.**
+
+
+```{r}
+library(fastDummies)
+P2data <- P2data %>%
+  dummy_cols(select_columns = c("HTN","HSgrad", "BMI3cat"))
+
+```
+
+
+
+```{r}
+mp3 <- glm(HTN ~ age + totchol + HbA1c + as.factor(HSgrad) + as.factor(BMI3cat) + age:totchol + age:HbA1c + age:as.factor(HSgrad) + age:as.factor(BMI3cat), 
+          data = P2data, 
+          family = "binomial"(link="logit"))
+
+round(coefficients(mp3), 4)
+```
+$$
+\begin{align*}
+\ln \left( \frac{\hat{\pi}}{1-\hat{\pi}} \right)&= -11.2361 + 0.1946 \text{age} + 0.0156 \text{totchol} + 0.7235 \text{HbA1c} - 0.0191 \text{HSgrad1} - 0.6539 \text{BMI3cat1}\\
+  &- 1.3789 \text{BMI3cat2} - 0.0003 (\text{age $\times$ totchol}) \\
+& - 0.0094 (\text{age $\times$ HbA1c}) + 0.0004 (\text{age $\times$ HSgrad1}) + 0.0024 (\text{age $\times$ BMI3cat1}) + 0.0068 (\text{age $\times$ BMI3cat2})
+\end{align*}
+$$
+
+
+
+**1c. Use the appropriate one-at-a-time hypothesis tests to determine which, if any, of the two-way interactions are significant. You do not need to formally typeset the results, but please provide a sentence stating the results with appropriate statistical justification.**
+
+```{r}
+summary(mp3)
+```
+
+**Testing the significant level of the interaction between age and total cholesterol**
+
+p - value = 0.00742. p <  $\alpha$ = 0.05. There is sufficient evidence to suggest that, the interaction between age and total cholesterol is significant predictor of hypertension status at visit 1
+
+**Testing the significant level of the interaction between age and hemoglobin **
+
+p - value = 0.06475. p > $\alpha$ = 0.05. There is sufficient evidence to suggest that, the interaction between age and hemoglobin A1c is not a significant predictor of hypertension status at visit 1
+
+**Testing the significant level of the interaction between age and High school graduates **
+
+p - value = 0.98074. p > $\alpha$ = 0.05. There is sufficient evidence to suggest that, the interaction between age and those who have graduated from high school is not a significant predictor of hypertension status at visit 1
+
+**Testing the significant level of the interaction between age and health status based on body mass index **
+```{r}
+car::Anova(mp3, type = 3)
+```
+p - value = 0.891005. p > $\alpha$ = 0.05. There is sufficient evidence to suggest that, the interaction between age and health status based on body mass index is not a significant predictor of hypertension status at visit 1
+
+**1d. Create a table of $\hat{\beta}_i$ (95% CI) and $p$-values; a table shell is below.**
+```{r}
+round(confint(mp3), 4)
+
+summary(mp3)
+```
+
+
+
+| Predictor  | $\hat{\beta}_i$ (95% CI) | $p$-value |
+|----------- |--------------------------|-----------|
+|age         |0.1946 (0.1174, 0.2736)   | < 0.001   |
+|totchol     |0.0156 (0.0034, 0.0278)   | 0.0121    |
+|HbA1c       |0.7235 (0.1735, 1.2877)   | 0.0107    |
+|HSgrad1     |-0.0191 (-1.7227, 1.8027) | 0.9830    |
+|BMI3cat1    |-0.6539 (-1.7691, 0.4433) | 0.2463    |
+|BMI3cat2    |-1.3789 (-3.0753, 0.2085) | 0.0989    |
+|age:totchol |-0.0003 (-0.0005, -0.0001)| 0.0074    |
+|age:HbA1c   |-0.0094 (-0.0194, 0.0006) | 0.0647    |
+|age:HSgrad1 |0.0004 (-0.0293, 0.0281)  | 0.9807    |
+|age:BMI3cat1|0.0024 (-0.0173, 0.0281)  | 0.8127    |
+|age:BMI3cat2|0.0068 (-0.0211, 0.0364)  | 0.6417    |
+
+
+**1e. For interpretability, let's plug in 45 for age and simplify the model. You do not need R for this.**
+
+-**Original model**
+
+$$
+\begin{align*}
+\ln \left( \frac{\hat{\pi}}{1-\hat{\pi}} \right)&= -11.2361 + 0.1946 \text{age} + 0.0156 \text{totchol} + 0.7235 \text{HbA1c} - 0.0191 \text{HSgrad1} - 0.6539 \text{BMI3cat1}\\
+  &- 1.3789 \text{BMI3cat2} - 0.0003 (\text{age $\times$ totchol}) \\
+& - 0.0094 (\text{age $\times$ HbA1c}) + 0.0004 (\text{age $\times$ HSgrad1}) + 0.0024 (\text{age $\times$ BMI3cat1}) + 0.0068 (\text{age $\times$ BMI3cat2})
+\end{align*}
+$$
+
+-**Simplified model, when age = 45**
+
+$$
+\begin{align*}
+\ln \left( \frac{\hat{\pi}}{1-\hat{\pi}} \right)&= -11.2361 + 0.1946 \times 45 + 0.0156 \text{totchol} + 0.7235 \text{HbA1c} - 0.0191 \text{HSgrad1} - 0.6539 \text{BMI3cat1}\\
+  &- 1.3789 \text{BMI3cat2} - 0.0003 (\text{45 $\times$ totchol}) \\
+& - 0.0094 (\text{45 $\times$ HbA1c}) + 0.0004 (\text{45 $\times$ HSgrad1}) + 0.0024 (\text{45 $\times$ BMI3cat1}) + 0.0068 (\text{45 $\times$ BMI3cat2})
+\end{align*}
+$$
+
+$$ln \left( \frac{\hat{\pi}}{1-\hat{\pi}} \right)= -2.4791 + 0.0021 \text{totchol} + 0.3005 \text{HbA1c} - 0.0011 \text{HSgrad1} - 0.5459 \text{BMI3cat1}- 1.0729 \text{BMI3cat2}$$
+
+**1f. Provide appropriate interpretations of the simplified slopes found in part e. Remember, you will either interpret $\hat{\beta}_i$ directly or you will interpret $\exp\left\{\hat{\beta}_i \right\}.$**
+
+$$ln \left( \frac{\hat{\pi}}{1-\hat{\pi}} \right)= -2.4791 + 0.0021 \text{totchol} + 0.3005 \text{HbA1c} - 0.0011 \text{HSgrad1} - 0.5459 \text{BMI3cat1}- 1.0729 \text{BMI3cat2}$$
+For 1 mg/dL increase in total cholesterol, the odds of hypertension status at visit is multiplied by $e^{0.0021}$ = 1.0021. This is a 0.21% increase.
+
+For 1 unit increase in  hemoglobin A1c , the odds of hypertension status at visit is multiplied by $e^{0.3005}$ = 1.3505. This is a 35.05% increase.
+
+As compared to those those who did not graduate high school, the odds of hypertension status for those who graduated high school are multiplied by $e^{-0.0011}$ = 0.9989. this is a 0.11% decrease
+
+As compared to those with poor health, the odds of hypertension status for those with intermediate health is multiplied by $e^{-0.5459}$ = 0.5793. This is a 42.07% decrease
+
+
+As compared to those with poor health, the odds of hypertension status for those with ideal health is multiplied by $e^{-1.0729}$ = 0.3420. This is a 65.87% decrease
+
+**1g. Is this a significant regression line? You do not need to formally typeset the results, but please provide a sentence stating the results with appropriate statistical justification.**
+
+```{r}
+reduced <- glm(HTN ~ 1, data = P2data, 
+          family = "binomial"(link="logit"))
+
+anova(reduced, mp3, test = "LRT")
+```
+
+p - value < 0.001. p < $\alpha$ = 0.05.There is sufficient evidence to suggest that, at least one slope is none - zero.The regression line is significant.
+
+### Outcome 2: Hypertension Status part 2
+
+**2a. Re-import the data from visit 1. Keep only subjid, BPjnc7, age, totchol, HbA1c, HSgrad, and BMI3cat. Retain only the complete cases.**
+
+```{r}
+library(haven)
+analysis1 <- read_sas("analysis1.sas7bdat")
+
+P2data1 <- analysis1 %>%
+  select(subjid,BPjnc7 , age, totchol, HbA1c , HSgrad, BMI3cat) %>%
+  na.omit()
+```
+
+**2b. Model hypertension status at V1 (*BPjnc7*; 0=normotensive, 1=pre-hypertensive, 2=Stage I hypertension, 3=Stage II hypertension) as a function of age (*age*; years), total cholesterol (*totchol*; mg/dL), hemoglobin A1c (*HbA1c*), education (*HSgrad*; 1=yes, 0=no), and health status based on body mass index (*BMI3cat*; 0=poor health, 1=intermediate health, 2=ideal health). Remember to typeset the model. <u>Further, remember to verify that your model is valid</u>.**
+
+```{r}
+library(fastDummies)
+P2data1 <- P2data1 %>%
+  dummy_cols(select_columns = c("BPjnc7","HSgrad", "BMI3cat"))
+```
+
+```{r}
+ 
+ P2data1 <- P2data1 %>% mutate(BPjnc7 = as.factor(BPjnc7),
+                               BMI3cat = as.factor(BMI3cat),
+                               HSgrad = as.factor(HSgrad))
+ 
+ mp4 <- MASS::polr( BPjnc7~ age + totchol + HbA1c  + HSgrad + BMI3cat ,
+                data = P2data1, Hess = TRUE)
+ 
+ summary(mp4)
+```
+
+## Resulting models:
+
+$${logit(P(Y ≤ normotensive))} = 2.837 + 0.046{\text{age}} + 0.004{\text{totchol}} + 0.078{\text{HbA1c}} - 0.063{\text{HSgrad1}} - 0.244{\text{BMI3cat1}} - 0.310{\text{BMI3cat2}}$$
+
+$${logit(P(Y ≤ pre-hypertension))} = 5.220 + 0.046{\text{age}} + 0.004{\text{totchol}} + 0.078{\text{HbA1c}} - 0.063{\text{HSgrad1}} - 0.244{\text{BMI3cat1}} - 0.310{\text{BMI3cat2}}$$
+
+$${logit(P(Y ≤ stage I hypertension))} = 7.104 + 0.046{\text{age}} + 0.004{\text{totchol}} + 0.078{\text{HbA1c}} - 0.063{\text{HSgrad1}} - 0.244{\text{BMI3cat1}} - 0.310{\text{BMI3cat2}}$$
+
+-**Testing the assumption of proportional odds**
+
+```{r}
+library(brant)
+brant(mp4)
+```
+Omnibus p - value = 0.22. p > $\alpha$ = 0.05. The assumption of proportional odds is met. This implies that, the model (mp4) is valid.
+
+**2c. Use the appropriate hypothesis test(s) to determine which, if any, of the predictors are significant. You do not need to formally typeset the results, but please provide a sentence stating the results with appropriate statistical justification.**
+
+```{r}
+car::Anova(mp4, type = 3)
+```
+
+**Testing the significant level of age **
+
+p - value < 0.001. p < $\alpha$ = 0.05. There is sufficient evidence to suggest that, age is a significant predictor of hypertension status at visit 1(BPjnc7)
+
+**Testing the significant level of total cholesterol **
+
+p - value < 0.001. p < $\alpha$ = 0.05. There is sufficient evidence to suggest that, total cholesterol is a significant predictor of hypertension status at visit 1(BPjnc7)
+
+**Testing the significant level of hemoglobin A1c**
+
+p - value = 0.047257. p < $\alpha$ = 0.05. There is sufficient evidence to suggest that, hemoglobin A1c is a significant predictor of hypertension status at visit 1(BPjnc7)
+
+**Testing the significant level of education**
+
+p - value = 0.601485. p > $\alpha$ = 0.05. There is sufficient evidence to suggest that, education (HSgrad) is not a significant predictor of hypertension status at visit 1(BPjnc7)
+
+
+**Testing the significant level of health status based on body mass index**
+
+p - value = 0.00444. p < $\alpha$ = 0.05. There is sufficient evidence to suggest that, health status based on body mass index is a significant predictor of hypertension status at visit 1(BPjnc7)
+
+**2d. Create a table of $\hat{\beta}_i$ (95% CI) and $p$-values; a table shell is below.**
+
+```{r}
+summary(mp4)
+
+round(confint(mp4), 3)
+
+car::Anova(mp4, type = 3)
+
+```
+
+
+| Predictor | $\hat{\beta}_i$ (95% CI) | $p$-value             |
+|-----------|--------------------------|-----------------------|
+|age        |0.046 (0.038, 0.053)      | <0.001                |
+|totchol    |0.004 (0.002, 0.006)      | <0.001                |
+|HbA1c      |0.078 (0.001, 0.154)      | 0.04726               |
+|HSgrad1    |-0.063 (-0.301, 0.175)    | 0.6015                |
+|BMI3cat1   |-0.244 (-0.417, -0.072)  |omnibus BMI3cat(0.0044)|
+|BMI3cat2   |-0.31 (-0.555, -0.066)    |                       |
+
+
+**2e. Provide appropriate interpretations of the slopes found in part d. Remember, you will either interpret $\hat{\beta}_i$ directly or you will interpret $\exp\left\{\hat{\beta}_i \right\}.$**
+
+For a 1 year increase in age, the odds in favor of the stage I hypertension or lower, as compared to higher than the normotensive is multiplied by $e^{0.046}$ = 1.0471. This is a 4.71% increase.
+
+For a 1 mg/dL increase in total cholesterol, the odds in favor of the stage I hypertension or lower, as compared to higher than the normotensive is multiplied by $e^{0.004}$ = 1.0040. This is a 0.4% increase.
+
+For a 1 unit increase in hemoglobin A1c, the odds in favor of the stage I hypertension or lower, as compared to higher than the normotensive is multiplied by $e^{0.078}$ = 1.0811. This is a 8.11% increase.
+
+As compared to those who did not graduate high school, the odds in favor of the stage I hypertension or lower, as compared to higher than the normotensive for those who graduated high school are multiplied $e^{-0.063}$ = 0.9389. This is a 6.11% decrease.
+
+As compared to those with poor health, the odds in favor of the stage I hypertension or lower, as compared to higher than the normotensive for those with intermediate health is  multiplied $e^{-0.244}$ = 0.7835. This is a 21.65% decrease.
+
+As compared to those with poor health, the odds in favor of the stage I hypertension or lower, as compared to higher than the normotensive for those with ideal health is  multiplied $e^{-0.31}$ = 0.7334. This is a 26.66% decrease
+
+
+
+**2f. Is this a significant regression line? You do not need to formally typeset the results, but please provide a sentence stating the results with appropriate statistical justification.**
+
+```{r}
+reduced <- MASS::polr(BPjnc7 ~ 1, data = P2data1, Hess = TRUE)
+
+anova(reduced, mp4, test = "Chisq")
+```
+
+p - value < 0.001. p < $\alpha$ = 0.05.There is sufficient evidence to suggest that at least one slope is non - zero. The regression line is significant
+
+### Outcome 3: Number of Risk Factors
+
+**3a. Re-import the data from visit 1. Keep only subjid, idealHealthBP, idealHealthSMK, idealHealthDM, idealHealthNutrition, idealHealthPA, idealHealthBMI, idealHealthChol, PrivatePublicIns, and HSgrad. Retain only the complete cases.**
+
+```{r}
+library(haven)
+analysis1 <- read_sas("analysis1.sas7bdat")
+
+P2data2 <- analysis1 %>%
+  select(subjid,age, idealHealthBP, idealHealthSMK, idealHealthDM, idealHealthNutrition, idealHealthPA, idealHealthBMI, idealHealthChol, PrivatePublicIns, HSgrad) %>%
+  na.omit()
+```
+
+**3b. Create a variable that counts the number of controllable risk factors for stroke at visit 1: blood pressure (*idealHealthBP*; 1=ideal health, 0=not ideal health), smoking status (*idealHealthSMK*; 1=ideal health, 0=not ideal health), diabetes (*idealHealthDM*; 1=ideal health, 0=not ideal health), diet  (*idealHealthNutrition*; 1=ideal health, 0=not ideal health), physical activity (*idealHealthPA*; 1=ideal health, 0=not ideal health), obesity  (*idealHealthBMI*; 1=ideal health, 0=not ideal health), and high cholesterol  (*idealHealthChol*; 1=ideal health, 0=not ideal health). Note: all of the idealHealth variables indicate *ideal* health… you are being asked to count the number of *not ideal* health indicators.**
+
+
+```{r}
+P2data2 <- P2data2 %>% mutate(CRFS_count = idealHealthBP + idealHealthSMK + idealHealthDM + idealHealthNutrition + idealHealthPA + idealHealthBMI + idealHealthChol)
+
+# Number of not ideal health
+P2data2 <- P2data2 %>% mutate(CRFS_NIH = 7 - CRFS_count)
+
+#CRFS_NIH = count of control risk factors for stroke, not ideal health
+```
+
+
+```{r}
+# boxplot
+P2data2 %>% 
+  ggplot(aes(y=CRFS_NIH, x=PrivatePublicIns)) + 
+  geom_boxplot() +
+  theme_bw()
+
+P2data2 %>% 
+  ggplot(aes(x=CRFS_NIH)) + 
+  geom_histogram(bins = 45) +
+  theme_bw()
+```
+
+
+**Checking the mean and variance of the outcome variable**
+```{r}
+P2data2 %>% summarize(mean(CRFS_NIH), var(CRFS_NIH))
+```
+
+The difference between the mean and variance of the outcome is not too large, hence poisson regression can be used. 
+
+**3c. Model the count variable created in part b as a function of age (*age*; years), health insurance status (*PrivatePublicIns*; 0=uninsured, 1=private insurance only, 2=public insurance only, 3=private and public insurances), and education status (*HSgrad*; 0=did not graduate high school, 1=graduated high school). Remember to typeset the model. <u>Further, remember to verify that your model is valid</u>.**
+
+```{r}
+P2data2 <- P2data2 %>%
+  dummy_cols(select_columns = c("PrivatePublicIns", "HSgrad" ))
+```
+
+
+
+```{r}
+P2data2 <- P2data2 %>% mutate(PrivatePublicIns = as.factor(PrivatePublicIns),
+                              HSgrad = as.factor(HSgrad))
+
+mp5 <- glm(CRFS_NIH ~ age + PrivatePublicIns + HSgrad, family = "poisson", data = P2data2)
+
+round(coefficients(mp5), 4)
+```
+
+$$ \ln(\hat{CRFS_NIH}) = 1.1658 + 0.0080 \text{age} - 0.0592 \text{PrivatePublicIns1} - 0.0261 \text{PrivatePublicIns2} - 0.0810 \text{PrivatePublicIns3} - 0.0209 \text{HSgrad1}$$
+
+
+**3d. Use the appropriate hypothesis test(s) to determine which, if any, of the predictors are significant. You do not need to formally typeset the results, but please provide a sentence stating the results with appropriate statistical justification.**
+
+```{r}
+summary(mp5)
+```
+
+**Testing the significant level of age**
+
+p - value < 0.001. p < $\alpha$ = 0.05. There is sufficient evidence to suggest that, age is a significant predictor of the count of controllable risk factors for stroke, not ideal health at visit 1
+
+**Testing the significant level of Education**
+
+p - value = 0.5071. p > $\alpha$ = 0.05. There is sufficient evidence to suggest that, high school graduates is not a significant predictor of the count of controllable risk factors for stroke, not ideal health at visit 1
+
+**Testing the significant level of health insurance status**
+```{r}
+car::Anova(mp5, type = 3)
+
+```
+p - value = 0.171. p > $\alpha$ = 0.05. There is sufficient evidence to suggest that, health insurance status is not a significant predictor of the count of controllable risk factors for stroke, not ideal health at visit 1
+
+
+**3e. Create a table of $\hat{\beta}_i$ (95% CI) and $p$-values; a table shell is below.**
+
+```{r}
+summary(mp5)
+
+round(confint(mp5),4)
+```
+
+
+| Predictor       | $\hat{\beta}_i$ (95% CI)   | $p$-value   |
+|-----------------|----------------------------|-------------|
+|age              | 0.0080 (0.0058, 0.0102)    |<0.001       |
+|PrivatePublicIns1|-0.0592 (-0.1226, 0.0049)   |0.0685       |           
+|PrivatePublicIns2|-0.0261 (-0.1124, 0.0602)   |0.5528       |
+|PrivatePublicIns3|-0.0810 (-0.1678, 0.0059)   |0.0675       |
+|HSgrad1          |-0.0209 (-0.0825, 0.0413)   |0.5071       |
+
+**3f. Provide appropriate interpretations of the slopes found in part d. Remember, you will either interpret $\hat{\beta}_i$ directly or you will interpret $\exp\left\{\hat{\beta}_i \right\}.$**
+
+**age**
+```{r}
+exp(0.008)   # IRRs - age
+```
+
+For a 1 year increase in age, the expected count of controllable risk factors for stroke, not ideal health at visit 1 is increased by 0.8%
+
+**Private insurance only**
+```{r}
+exp(-0.0592)    # IRRs - Private insurance only
+```
+Those with private insurance only have an expected count of controllable risk factors for stroke, not ideal health that is 0.9425 times the count for the uninsured. This is a 5.75% decrease
+
+**Public insurance only**
+```{r}
+exp(-0.0261)    # IRRs - Public insurance only
+```
+
+Those with public insurance only have an expected count of controllable risk factors for stroke, not ideal health that is 0.9742 times the count for the uninsured. This is a 2.58% decrease
+
+**Private and Public insurances**
+```{r}
+exp(-0.0810)    # IRRs - Private and Public insurances
+```
+Those with private and public insurances have an expected count of controllable risk factors for stroke, not ideal health that is 0.9222 times the count for the uninsured. This is a 7.78% decrease
+
+**High school graduates**
+```{r}
+exp(-0.0209)   #IRRs - High school graduates
+```
+Those who graduated high school have an expected count of controllable risk factors for stroke, not ideal health that is 0.9793 times the count for those who did not graduate high school. This is a 2.07% decrease
+
+**3g. Is this a significant regression line? You do not need to formally typeset the results, but please provide a sentence stating the results with appropriate statistical justification.**
+
+```{r}
+red <- glm(CRFS_NIH ~ 1, family = "poisson", data = P2data2)
+
+anova(red, mp5, test = "LRT")
+```
+
+p - value < 0.001. p < $\alpha$ = 0.05.There is sufficient evidence to suggest that at least one slope is non - zero. The regression line is significant
+
+
