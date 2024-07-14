@@ -429,4 +429,5 @@ anova(red, mp5, test = "LRT")
 
 p - value < 0.001. p < $\alpha$ = 0.05.There is sufficient evidence to suggest that at least one slope is non - zero. The regression line is significant
 
+p - value < .001. p < $\alpha$ = 0.here is sufficient evidence to suggest that at least one slope is non - zero. The regression line is significant
 
